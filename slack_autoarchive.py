@@ -70,7 +70,7 @@ This script was run from a fork of this repo: https://github.com/Symantec/slack-
         """ Helper function to query the slack api and handle errors and rate limit. """
         # pylint: disable=no-member
         uri = 'https://slack.com/api/' + api_endpoint
-        payload['token'] = self.settings.get('bot_slack_token')
+        header = {'Authorization': 'Bearer ' + self.settings.get('bot_slack_token')}
         try:
             # Force request to take at least 1 second. Slack docs state:
             # > In general we allow applications that integrate with Slack to send
@@ -80,9 +80,9 @@ This script was run from a fork of this repo: https://github.com/Symantec/slack-
                 time.sleep(retry_delay)
 
             if method == 'POST':
-                response = requests.post(uri, data=payload)
+                response = requests.post(uri, headers=header, data=payload)
             else:
-                response = requests.get(uri, params=payload)
+                response = requests.get(uri, headers=header, params=payload)
 
             if response.status_code == requests.codes.ok and 'error' in response.json(
             ) and response.json()['error'] == 'not_authed':
